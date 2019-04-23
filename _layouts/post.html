@@ -1,120 +1,92 @@
 ---
 layout: default
-body_class: post-template
+disqus: false
+archive: false
+post_class: post-template
 ---
-{% if page.image %}
-<div id="feature_image">
-  <div class="inner" style="background-image: url('{{ site.baseurl }}/content/images//{{ page.image }}')">
-    <img src='{{ site.baseurl }}/content/images/{{ page.image }}'>
-    </div>
-</div>
-{% endif %}
 
-<article role="main" class="{% if page.image %}image{% endif %}">
-    <header>
-      <a href="{{ site.baseurl }}/" id="home_link">«</a>
-      <div class="meta"><time datetime="{{ page.date | date:'%Y-%m-%d' }}"><a href="{{ page.url }}">{{ page.date | date: "%B %d, %Y" }}</a></time>
-        <span class="count" id="js-reading-time">&nbsp;</span>
-      </div>
-      <h1>{{ page.title }}</h1>
-    </header>
+<header class="main-header post-head {% if page.cover %}" style="background-image: url({{ page.cover }}) {%else%}no-cover{% endif %}">
+    <nav class="main-nav {% if page.cover %} overlay {% endif %} clearfix">
+        <a class="back-button icon-arrow-left" href="{{ site.baseurl }}">Home</a>
+        <a class="subscribe-button icon-feed" href="{{ site.baseurl }}feed.xml">Subscribe</a>
+    </nav>
+</header>
 
-    <div class="text" id="js-post-content">
-        {{ content }}
-    </div>
+<main class="content" role="main">
 
-    <menu>
-      <a href="" id="btn_share" class="btn" title="Share">
-        <span aria-hidden="true" data-icon="S"></span>
-        <strong>Share</strong>
-      </a>
-      <a href="http://twitter.com/share?text={{ page.title | cgi_escape }}&url={{ site.url }}{{ page.url prepend: site.baseurl }}" onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;" id="btn_comment" class="btn" target="_blank">
-        <span aria-hidden="true" data-icon="C"></span> Comment on Twitter
-      </a>
-    </menu>
-</article>
+    <article class="post">
 
-{% include footer.html %}
+        <header class="post-header">
+            <h1 class="post-title">{{ page.title }}</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="{{ page.date | date:"%Y-%m-%d" }}">{{ page.date | date_to_string }}</time>
+                {% if page.categories.size > 0 %}
+                    {{ page.categories | array_to_sentence_string | prepend: 'on ' }}
+                {% endif %}
+            </section>
+        </header>
 
-<div id="share_modal">
-    <div class="wrap">
-        <div class="inner">
-            <header>
-                Share
-                <a href="" class="close" title="Close">&times;</a>
-            </header>
+<!--         <header class="post-header">
+            <a id="blog-logo" href="{{site.url}}">
+                {% if site.logo %}
+                    <img src="{{site.logo}}" alt="{{ site.name }}" />
+                {% else %}
+                    <span class="blog-title">{{ site.name }}</span>
+                {%endif%}
+            </a>
+        </header> -->
 
-            <div class="roon-share-links">
-                <a href="https://twitter.com/share" class="twitter-share-button" data-dnt="true">Tweet</a>
-                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        <!-- <span class="post-meta">
+            <time datetime="{{ page.date | date:"%Y-%m-%d" }}">{{ page.date | date_to_string }}</time>
+            {% if page.categories.size > 0 %}
+                {{ page.categories | array_to_sentence_string | prepend: 'on ' }}
+            {% endif %}
+        </span> -->
 
-                <div id="fb-elems">
-                    <div id="fb-root"></div>
-                    <script>(function(d, s, id) {
-                    var js, fjs = d.getElementsByTagName(s)[0];
-                    if (d.getElementById(id)) return;
-                    js = d.createElement(s); js.id = id;
-                    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=463438580397968";
-                    fjs.parentNode.insertBefore(js, fjs);
-                    }(document, 'script', 'facebook-jssdk'));</script>
-                    <div class="fb-like" data-send="false" data-layout="button_count" data-width="110" data-show-faces="false" data-font="arial"></div>
-                </div>
+        <!-- <h1 class="post-title">{{ page.title }}</h1> -->
 
-                <div id="pinit-btn">
-                    <a href="//pinterest.com/pin/create/button/?url={{ page.url |prepend: site.baseurl }}&amp;description={{ page.title | xml_encode }}-{{ site.title | xml_encode }} " data-pin-do="buttonPin" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pin_it_button.png"></a>
-                    <script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        <section class="post-content">
+            {{content}}
+        </section>
 
+        {% if page.archive %}
+        <section class="archive">
+            <h5>Archive</h5>
+            <ul>
+                {% for post in site.posts %}
+                    <li><span>{{ post.date | date_to_string }}</span>  <a href="{{ post.url }}">{{ post.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
 
-<script>
-window.onload = function () {
-  reading_time();
-}
-function get_text(el) {
-  ret = "";
-  var length = el.childNodes.length;
-  for(var i = 0; i < length; i++) {
-    var node = el.childNodes[i];
-    if(node.nodeType != 8) {
-      ret += node.nodeType != 1 ? node.nodeValue : get_text(node);
-    }
-  }
-  return ret;
-}
-function reading_time () {
-  var post_content = document.getElementById('js-post-content');
-  if (post_content) {
-    var words = get_text(post_content),
-      count = words.split(/\s+/).length,
-    read_time = Math.ceil((count / 150)),
-        read_time_node = document.createTextNode(read_time + ' min read');
-    document.getElementById('js-reading-time').appendChild(read_time_node);
-  }
-}
-$(function(){
-  var share_modal = $("#share_modal"),
-  update_social_links = true;
+        <footer class="post-footer">
+            <!-- If we want to display author's name and bio -->
+            {% if site.author %}
+                <figure class="author-image">
+                    <a class="img" href="{{ site.baseurl }}" style="background-image: url(/assets/images/profile.png)">
+                    <span class="hidden">{{site.author}}'s Picture</span></a>
+                </figure>
+                <section class="author">
+                    <!-- Author Name -->
+                    <h4> {{ site.author }} </h4>
+                    <!-- Author Bio -->
+                    <p>
+                        Here goes the author description. You might want to place some links too in here
+                    </p>
+                </section>
+            {% endif %}
 
-  $("#btn_share").click(function(){
-    var that = $(this);
-    share_modal.fadeIn(200);
-    return false;
-  });
+            <!-- Share links section -->
+            {% include share.html %}
 
-  share_modal.click(function(e){
-    if (e.target.className == "wrap" || e.target.id == "share_modal") {
-      share_modal.fadeOut(200);
-    }
-    return false;
-  });
+            <!-- Disqus comments -->
+            {% if page.disqus %}
+                {% include disqus.html %}
+            {% endif %}
 
-  share_modal.find("div.inner > header > a.close").click(function(){
-    share_modal.fadeOut(200);
-    return false;
-  });
-});
-</script>
+        </footer>
+
+    </article>
+
+</main>
